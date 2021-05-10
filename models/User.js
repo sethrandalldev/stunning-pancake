@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 mongoose.Promise = Promise;
 
 const User = mongoose.model('User', {
-  name: String,
+  firstName: String,
+  lastName: String,
   email: String,
   password: String,
-  location: String
 });
 
 module.exports = User;

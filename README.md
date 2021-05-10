@@ -1,2 +1,2 @@
 # stunning-pancake
-A weather app API written in Node.
+A book tracking app API written in Node.
