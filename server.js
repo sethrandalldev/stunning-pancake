@@ -19,7 +19,15 @@ app.use(cors({
 app.use(express.json());
 
 app.post('/login', async(req, res) => {
+  console.log(req.body);
+  User.find({}, function (err, users) {
+
+    users.forEach(function(user) {
+      console.log(user);
+    });
+  });
   User.findOne({email: req.body.email}, (err, user) => {
+    console.log(user);
     bcrypt.compare(req.body.password, user.password, function(err, result) {
       if (result) res.send({ id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName });
       else res.sendStatus(404);
@@ -113,6 +121,8 @@ app.post('/books', async(req, res) => {
 mongoose.connect(dbUrl, {useNewUrlParser: true, useUnifiedTopology: true}, (err) => {
   if (err) {
     console.log('mongoose error: ', err);
+  } else {
+    console.log('mongoose connected');
   }
 });
 
