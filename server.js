@@ -67,7 +67,7 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/pages/:notebookId", async (req, res) => {
-  Page.find({ userId: req.params.notebookId }, function (err, pages) {
+  Page.find({ notebookId: req.params.notebookId }, function (err, pages) {
     res.send(pages);
   });
 });
@@ -81,10 +81,19 @@ app.get("/notebooks/:userId", async (req, res) => {
 
 app.post("/page", async (req, res) => {});
 
-app.post("/notebook", async (req, res) => {
+app.delete("/notebooks/:id", async (req, res) => {
+  Notebook.findByIdAndDelete(req.params.id, function (err, docs) {
+    if (err) {
+      console.error(err);
+    } else {
+      res.sendStatus(200);
+    }
+  });
+});
+
+app.post("/notebooks", async (req, res) => {
   const userId = req.body.userId;
   Notebook.findOne({ title: req.body.title, userId }, function (err, notebook) {
-    console.log(notebook);
     if (notebook && Object.keys(notebook).length) {
       return res.sendStatus(409);
     } else {
@@ -100,7 +109,17 @@ app.post("/notebook", async (req, res) => {
         function (err, user) {
           try {
             user.save().then(() => {
-              notebook.save().then((savedNotebook) => res.send(savedNotebook));
+              const page = new Page({
+                title: "First Page",
+                description: "",
+                notebookId: notebook._id,
+              });
+              notebook.pages.push(page._id);
+              page.save().then((savedPage) => {
+                notebook
+                  .save()
+                  .then((savedNotebook) => res.send(savedNotebook));
+              });
             });
           } catch (error) {
             res.sendStatus(500);
