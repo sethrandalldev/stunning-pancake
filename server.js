@@ -106,7 +106,7 @@ app.post("/pages/:notebookId", async (req, res) => {
       req.params.notebookId,
       { $push: { pages: page._id } },
       (err, notebook) => {
-        notebook.save().then(() => res.sendStatus(200));
+        notebook.save().then(() => res.status(200).send(page));
       }
     );
   });
