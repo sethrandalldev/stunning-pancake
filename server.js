@@ -22,15 +22,8 @@ app.use(
 app.use(express.json());
 
 app.post("/login", async (req, res) => {
-  console.log(req.body);
-  User.find({}, function (err, users) {
-    users.forEach(function (user) {
-      console.log(user);
-    });
-  });
   User.findOne({ email: req.body.email }, (err, user) => {
-    console.log(user);
-    bcrypt.compare(req.body.password, user.password, function (err, result) {
+    bcrypt.compare(req.body.password, user.password, (err, result) => {
       if (result)
         res.send({
           id: user._id,
@@ -44,11 +37,11 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  User.findOne({ email: req.body.email }, function (err, user) {
+  User.findOne({ email: req.body.email }, (err, user) => {
     if (user && Object.keys(user).length) {
       return res.sendStatus(409);
     } else {
-      bcrypt.hash(req.body.password, 10, function (err, hash) {
+      bcrypt.hash(req.body.password, 10, (err, hash) => {
         const user = new User({
           firstName: req.body.firstName,
           lastName: req.body.lastName,
@@ -67,22 +60,19 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/pages/:notebookId", async (req, res) => {
-  Page.find({ notebookId: req.params.notebookId }, function (err, pages) {
+  Page.find({ notebookId: req.params.notebookId }, (err, pages) => {
     res.send(pages);
   });
 });
 
 app.get("/notebooks/:userId", async (req, res) => {
-  Notebook.find({ userId: req.params.userId }, function (err, notebooks) {
-    console.log(notebooks);
+  Notebook.find({ userId: req.params.userId }, (err, notebooks) => {
     res.send(notebooks);
   });
 });
 
-app.post("/page", async (req, res) => {});
-
 app.delete("/notebooks/:id", async (req, res) => {
-  Notebook.findByIdAndDelete(req.params.id, function (err, docs) {
+  Notebook.findByIdAndDelete(req.params.id, (err, docs) => {
     if (err) {
       console.error(err);
     } else {
@@ -91,9 +81,40 @@ app.delete("/notebooks/:id", async (req, res) => {
   });
 });
 
+app.put("/pages", async (req, res) => {
+  Page.findByIdAndUpdate(
+    req.body.id,
+    { title: req.body.title, body: req.body.body },
+    (err, page) => {
+      if (err) {
+        console.error(err);
+      } else {
+        page.save().then(() => res.sendStatus(200));
+      }
+    }
+  );
+});
+
+app.post("/pages/:notebookId", async (req, res) => {
+  const page = new Page({
+    title: "",
+    body: "",
+    notebookId: req.params.notebookId,
+  });
+  page.save().then(() => {
+    Notebook.findByIdAndUpdate(
+      req.params.notebookId,
+      { $push: { pages: page._id } },
+      (err, notebook) => {
+        notebook.save().then(() => res.sendStatus(200));
+      }
+    );
+  });
+});
+
 app.post("/notebooks", async (req, res) => {
   const userId = req.body.userId;
-  Notebook.findOne({ title: req.body.title, userId }, function (err, notebook) {
+  Notebook.findOne({ title: req.body.title, userId }, (err, notebook) => {
     if (notebook && Object.keys(notebook).length) {
       return res.sendStatus(409);
     } else {
@@ -106,12 +127,12 @@ app.post("/notebooks", async (req, res) => {
       User.findByIdAndUpdate(
         userId,
         { $push: { notebooks: notebook._id } },
-        function (err, user) {
+        (err, user) => {
           try {
             user.save().then(() => {
               const page = new Page({
                 title: "First Page",
-                description: "",
+                body: "",
                 notebookId: notebook._id,
               });
               notebook.pages.push(page._id);
@@ -136,7 +157,7 @@ mongoose.connect(
   { useNewUrlParser: true, useUnifiedTopology: true },
   (err) => {
     if (err) {
-      console.log("mongoose error: ", err);
+      console.error(err);
     } else {
       console.log("mongoose connected");
     }
