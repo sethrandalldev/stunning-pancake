@@ -97,7 +97,7 @@ app.put("/pages", async (req, res) => {
 
 app.post("/pages/:notebookId", async (req, res) => {
   const page = new Page({
-    title: "",
+    title: req.body.title,
     body: "",
     notebookId: req.params.notebookId,
   });
