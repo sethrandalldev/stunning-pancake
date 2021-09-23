@@ -83,7 +83,7 @@ app.delete("/notebooks/:id", async (req, res) => {
 
 app.put("/pages", async (req, res) => {
   Page.findByIdAndUpdate(
-    req.body.id,
+    req.body.pageId,
     { title: req.body.title, body: req.body.body },
     (err, page) => {
       if (err) {
