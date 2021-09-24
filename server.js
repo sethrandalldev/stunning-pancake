@@ -82,8 +82,9 @@ app.delete("/notebooks/:id", async (req, res) => {
 });
 
 app.put("/pages", async (req, res) => {
+  console.log(req.body);
   Page.findByIdAndUpdate(
-    req.body.pageId,
+    req.body.id,
     { title: req.body.title, body: req.body.body },
     (err, page) => {
       if (err) {
